@@ -1,0 +1,12 @@
+# PlatformIO build output (rebuilds from source; PixelPop.ino.bin at the repo
+# root is the one published binary the boards' auto-updater actually reads)
+.pio/
+build/
+
+# Local-only working folders
+firmware-backups/
+archive/
+
+# OS / editor cruft
+.DS_Store
+dialog.txt

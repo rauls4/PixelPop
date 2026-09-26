@@ -1,0 +1,126 @@
+.TH UPDATEPP 1 "September 2026" "PixelPop" "PixelPop Manual"
+.SH NAME
+updatePP \- build, flash, publish, and install PixelPop firmware
+.SH SYNOPSIS
+.B updatePP
+[\fB\-f\fR] [\fB\-u\fR] [\fB\-o\fR \fIdevice\fR]
+.SH DESCRIPTION
+.B updatePP
+is a zsh shell function, not a firmware component, that builds the PixelPop
+firmware from
+.I ~/Desktop/Sketches/Matrix/PixelPop
+and, depending on the options given, flashes a board connected over USB,
+publishes the compiled binary to the
+.B rauls4/PixelPop
+GitHub repository, and/or tells one specific board on the network to
+download and install the currently published build over Wi\-Fi (an OTA
+install).
+.PP
+It always operates in the PixelPop project directory, regardless of the
+current working directory when it is invoked.
+.PP
+With no options,
+.B updatePP
+only builds the firmware (\fBpio run\fR) and does nothing else.
+.PP
+If
+.B \-o
+is given without \fB\-f\fR or \fB\-u\fR, the build step is skipped
+entirely: the named board is simply told to install whatever is already
+published on GitHub.
+.SH OPTIONS
+.TP
+.B \-f
+Flash the board currently connected over USB (\fBpio run \-t upload\fR)
+after building. If the board does not enter the bootloader on its own,
+hold BOOT, tap RESET, then release BOOT; see
+.I FLASHING.md
+pitfall 13 in the project root.
+.TP
+.B \-u
+After building, copy the compiled binary to
+.I PixelPop.ino.bin
+at the repository root and push it to the
+.B rauls4/PixelPop
+GitHub repository's
+.B main
+branch. Only that one binary file is staged; nothing else in the working
+tree is committed. If the binary is unchanged since the last push, this
+prints a message and skips the commit instead of failing. Either way, it
+finishes by printing the
+.B updatePP \-o
+command to run next.
+.TP
+.BI \-o " device"
+Tell
+.I device
+(an IP address or a \fB.local\fR hostname) to download and install the
+build currently published on GitHub, then display its install progress
+as a bar until it reports success or failure. This never touches the
+board's own automatic\-update setting; it is a one\-shot, one\-time
+install, equivalent to opening that board's home page yourself and
+clicking its "Install" button.
+.SH EXIT STATUS
+Returns non\-zero if the build, the flash, the git push, or the OTA
+install fails, or if the board stops responding mid\-install without
+having reported success. A dropped connection after the board reports
+.B done
+is treated as success, since the board only stops answering because it
+is restarting into the new build.
+.SH EXAMPLES
+.TP
+.B updatePP
+Build only, as a quick syntax and compile check.
+.TP
+.B updatePP \-f
+Build, then flash the USB\-connected board.
+.TP
+.B updatePP \-u
+Build, then publish the binary to GitHub.
+.TP
+.B updatePP \-fu
+Build, flash the USB board, and publish to GitHub in one step.
+.TP
+.B updatePP \-o pixelpop\-livingroom.local
+Install whatever is currently on GitHub onto that one board, without
+building anything first.
+.TP
+.B updatePP \-uo 192.168.6.189
+Build, publish to GitHub, and immediately install that freshly\-published
+build on that board \- build through install in a single command.
+.SH WARNINGS
+Never run
+.B \-o
+unattended or from an automated trigger. Only run it while watching the
+board: an interrupted OTA install has bricked a board before (see
+.I FLASHING.md
+pitfall 8 in the project root). If a board misbehaves after an OTA
+install,
+.B updatePP \-f
+over USB returns it to a known\-good build.
+.SH FILES
+.TP
+.I ~/Desktop/Sketches/Matrix/PixelPop
+The project directory
+.B updatePP
+always operates in.
+.TP
+.I PixelPop.ino.bin
+The published binary, at the repository root, that
+.B \-u
+updates and
+.B \-o
+installs.
+.TP
+.I ~/.zshrc
+Where the
+.B updatePP
+shell function itself is defined.
+.SH SEE ALSO
+.I UPDATEPP.md
+and
+.I FLASHING.md
+in the project root;
+.BR pio (1),
+.BR curl (1),
+.BR git (1).

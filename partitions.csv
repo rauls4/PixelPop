@@ -1,0 +1,20 @@
+# PixelPop flash layout for a 32 MB board: two program slots of about 6 MB, so new firmware can be
+# installed from the Advanced page over Wi-Fi, plus 4 MB of storage for photos.
+#
+# The Arduino IDE uses this file instead of the Tools > Partition Scheme menu when it sits next to
+# PixelPop.ino. Set Tools > Flash Size to 32MB, then upload once over USB to apply it.
+#
+# The settings storage (nvs) is 64 KB. The old 20 KB filled up once many functions were installed, and
+# then changes to settings were forgotten at the next restart. It grows in place, so saved settings and
+# the photos are kept (the first upload with this file may still reset the settings once; see the notes).
+#
+# The Tools > Partition Scheme menu does not change the layout below (this file wins), but the IDE still
+# uses the menu's size to decide "Sketch too big". Pick "32M Flash (13MB APP/6.75MB SPIFFS)" so that check
+# allows the size of this table's program slots and more.
+#
+# Name,    Type, SubType, Offset,   Size,     Flags
+nvs,       data, nvs,     0x9000,   0x10000,
+otadata,   data, ota,     0x19000,  0x2000,
+app0,      app,  ota_0,   0x20000,  0x5F0000,
+app1,      app,  ota_1,   0x610000, 0x600000,
+spiffs,    data, spiffs,  0xC10000, 0x400000,
